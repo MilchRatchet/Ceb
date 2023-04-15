@@ -1,12 +1,14 @@
 #ifndef CEB_H
 #define CEB_H
 
+#include <stdint.h>
 #include <stdlib.h>
 
 struct CebData {
   size_t size;
   char* data;
   char* name;
+  uint64_t hash;
 } typedef CebData;
 
 enum CebResult {
