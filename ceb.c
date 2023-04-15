@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "ceb_base.h"
 #include "ceb_gen.h"
 
 int main(int argc, char** argv) {

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "ceb.h"
+#include "ceb_base.h"
 
 struct CebGenerator {
   char* name;
