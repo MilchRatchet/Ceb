@@ -146,7 +146,7 @@ static CebResult _ceb_gen_create_cebdata(CebData* data, const char* file) {
   return CEB_RESULT_OK;
 }
 
-static CebResult _ceb_gen_write_date(FILE* file, const CebData* data) {
+static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
   const size_t num_numbers = (data->size + 7) / 8;
   char* buffer             = malloc(num_numbers * 19 + 4096);
 
@@ -166,7 +166,8 @@ static CebResult _ceb_gen_write_date(FILE* file, const CebData* data) {
   for (size_t j = 0; j < num_numbers - 1; j++) {
     const uint64_t v = data64_i[j];
 
-    if (v < 10) {
+    // This is the smallest number that uses more than 2 additional digits in decimal compared to hex
+    if (v < 1000000000000) {
       buffer_offset += sprintf(buffer + buffer_offset, "%" PRIu64 ",", v);
     }
     else {
@@ -229,7 +230,7 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("#include <string.h>\n", 1, 20, output);
 
   for (uint32_t i = 0; i < gen->count; i++) {
-    CHECK_CEB(_ceb_gen_write_date(output, datas + i));
+    CHECK_CEB(_ceb_gen_write_data(output, datas + i));
   }
 
   fwrite("static uint64_t _ceb_hash_fnv1a(const char* str) {\n", 1, 51, output);
