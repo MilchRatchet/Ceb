@@ -74,14 +74,6 @@ CebResult ceb_gen_add_file(CebGenerator* gen, const char* file) {
   return CEB_RESULT_OK;
 }
 
-static void strreplace(char* str, const size_t num_chars, const char in, const char out) {
-  for (size_t i = 0; i < num_chars; i++) {
-    if (str[i] == in) {
-      str[i] = out;
-    }
-  }
-}
-
 static CebResult read_file(CebData* data, const char* path) {
   FILE* file = fopen(path, "rb");
 
@@ -100,7 +92,7 @@ static CebResult read_file(CebData* data, const char* path) {
 
   data->size = 0;
 
-  while (bytes_read = fread(data->data + data->size, 1, allocated_size - data->size, file)) {
+  while ((bytes_read = fread(data->data + data->size, 1, allocated_size - data->size, file)) != 0) {
     data->size += bytes_read;
 
     allocated_size = allocated_size * 2;
@@ -116,7 +108,9 @@ static CebResult read_file(CebData* data, const char* path) {
 
   data->data[data->size] = '\0';
 
-  printf("%s\n", data->data);
+  printf("Read file of size: %" PRId64 "\n", data->size);
+
+  return CEB_RESULT_OK;
 }
 
 static CebResult _ceb_gen_create_cebdata(CebData* data, const char* file) {
@@ -154,7 +148,7 @@ static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
     return CEB_RESULT_MEMORY;
   }
 
-  const size_t len_size_line = sprintf(buffer, "static int64_t size_%" PRIu64 " = %zu;\n", data->hash, data->size);
+  const size_t len_size_line = sprintf(buffer, "static int64_t size_%" PRIu64 " = %" PRId64 ";\n", data->hash, data->size);
   fwrite(buffer, 1, len_size_line, file);
 
   const uint64_t* data64_i = (const uint64_t*) data->data;
@@ -229,6 +223,12 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("#include <stdint.h>\n", 1, 20, output);
   fwrite("#include <string.h>\n", 1, 20, output);
 
+  fwrite("#if defined(__STDFC__) && __STDC_VERSION__ >= 199901\n", 1, 53, output);
+  fwrite("#define RESTRICT_KEYWORD restrict\n", 1, 34, output);
+  fwrite("#else\n", 1, 6, output);
+  fwrite("#define RESTRICT_KEYWORD\n", 1, 25, output);
+  fwrite("#endif\n", 1, 7, output);
+
   for (uint32_t i = 0; i < gen->count; i++) {
     CHECK_CEB(_ceb_gen_write_data(output, datas + i));
   }
@@ -242,6 +242,7 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("#define _CEB_LOAD(__size__, __data__) {\\\n", 1, 41, output);
   fwrite("if (*lmem == -1) { *lmem = __size__; }\\\n", 1, 40, output);
   fwrite("else {\\\n", 1, 8, output);
+  fwrite("if (!mem) { *info = 1; return; }\\\n", 1, 34, output);
   fwrite("if (*lmem < __size__) { *info = 1; return; }\\\n", 1, 46, output);
   fwrite("memcpy(mem, __data__, __size__);\\\n", 1, 34, output);
   fwrite("*info = 0;\\\n", 1, 12, output);
@@ -249,8 +250,13 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("}\\\n", 1, 3, output);
   fwrite("}\n", 1, 2, output);
 
-  fwrite("void ceb_load(const char* name, void* mem, int64_t* lmem, uint64_t* info) {\n", 1, 76, output);
+  fwrite(
+    "void ceb_load(const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD* mem, int64_t RESTRICT_KEYWORD* lmem, uint64_t "
+    "RESTRICT_KEYWORD* info) {\n",
+    1, 144, output);
   fwrite("if (!name) { *info = 1; return; };\n", 1, 35, output);
+  fwrite("if (!lmem) { *info = 1; return; };\n", 1, 35, output);
+  fwrite("if (!info) { *info = 1; return; };\n", 1, 35, output);
   fwrite("const uint64_t hash = _ceb_hash_fnv1a(name);\n", 1, 45, output);
 
   for (uint32_t i = 0; i < gen->count; i++) {
@@ -261,8 +267,7 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
     }
 
     const size_t buf_len = sprintf(
-      buffer, "if (hash == %" PRIu64 ") _CEB_LOAD(size_%" PRIu64 ", data_%" PRIu64 ");\n", datas[i].hash, datas[i].hash, datas[i].hash,
-      datas[i].hash);
+      buffer, "if (hash == %" PRIu64 "ULL) _CEB_LOAD(size_%" PRIu64 ", data_%" PRIu64 ");\n", datas[i].hash, datas[i].hash, datas[i].hash);
     fwrite(buffer, 1, buf_len, output);
 
     free(buffer);

@@ -19,13 +19,13 @@ enum CebResult {
   CEB_RESULT_NOT_FOUND = 5
 } typedef CebResult;
 
-#define CHECK_CEB(call)                           \
-  {                                               \
-    CebResult __result__ = call;                  \
-    if (__result__ != CEB_RESULT_OK) {            \
-      printf("CEB ERROR CODE: %d\n", __result__); \
-      return __result__;                          \
-    }                                             \
+#define CHECK_CEB(call)                                                        \
+  {                                                                            \
+    CebResult __result__ = call;                                               \
+    if (__result__ != CEB_RESULT_OK) {                                         \
+      printf("CEB ERROR CODE: %d at %s:%d\n", __result__, __FILE__, __LINE__); \
+      return __result__;                                                       \
+    }                                                                          \
   }
 
 uint64_t ceb_hash_fnv1a(const char* str);
