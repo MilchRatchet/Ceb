@@ -12,6 +12,10 @@
 #define RESTRICT_KEYWORD
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * This function provides access to the embedded files.
  *
@@ -45,6 +49,10 @@
  */
 void ceb_load(
   const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD* mem, int64_t RESTRICT_KEYWORD* lmem, uint64_t RESTRICT_KEYWORD* info);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CEB_BUILD */
 
