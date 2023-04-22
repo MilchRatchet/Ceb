@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 /**
- * This function provides access to the embedded files.
+ * This function copies the content of an embedded file into a memory buffer.
  *
  * There are two modes: The default mode where the content of the specified file
  * is copied to a buffer and a mode where the size of the content of the specified
@@ -49,6 +49,34 @@ extern "C" {
  */
 void ceb_load(
   const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD* mem, int64_t RESTRICT_KEYWORD* lmem, uint64_t RESTRICT_KEYWORD* info);
+
+/**
+ * This function provides access to the embedded files memory directly.
+ *
+ * The pointer to the memory block containing the content of the specified file
+ * will be written to ptr. This memory block is not malloced and hence should not
+ * be freed. Any writes to the memory block will alter the the files content for
+ * the duration of the runtime. If this is not desired, use the \ref ceb_load function
+ * which copies the memory to a separate buffer which allows you to freely modify
+ * the memory.
+ *
+ * Note that if the specified file is not present, no error is thrown. Instead the
+ * function considers not present files to be of zero size. This means the value
+ * 0 will be written to lmem. The value stored in ptr will remain unchanged.
+ *
+ * If any of the inputs is a null pointer, an error will be thrown.
+ *
+ * In this version of Ceb, the value in info is always 1 if an error is thrown. Note
+ * that future versions of Ceb may indicate the reason of the error using other values.
+ *
+ * \param name a string containing the name of the file without its original path
+ * \param ptr a pointer to the memory
+ * \param lmem the size of the memory pointed to by *ptr, in bytes
+ * \param info the error code value, on success the value 0 will be written, otherwise a non-zero value
+ *
+ */
+void ceb_access(
+  const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD** ptr, int64_t RESTRICT_KEYWORD* lmem, uint64_t RESTRICT_KEYWORD* info);
 
 #ifdef __cplusplus
 }

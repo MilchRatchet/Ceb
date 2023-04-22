@@ -6,6 +6,8 @@ Note that the code is currently untested on big endian machines.
 
 ## Usage
 
+Add this repository as a submodule to your repository. Then set up your CMakeLists.txt as follows:
+
 ```CMAKE
 cmake_minimum_required(VERSION 3.25)
 
@@ -26,8 +28,9 @@ add_executable(ExampleExecutable ${EXECUTABLE_SOURCE_FILES} ${CEB_OUTPUT_FILE_${
 add_library(ExampleLibrary ${LIBRARY_SOURCE_FILES} ${CEB_OUTPUT_FILE_${EMBED_FILE_NAME}})
 ```
 
-```C
+Then you can load the files through two different methods. The first option is to retrieve the size of file, allocated an appropriately sized memory buffer and then copy the file to this buffer.
 
+```C
 #include "ceb.h"
 
 // ...
@@ -48,7 +51,24 @@ ceb_load("file_name.example", data, &size, &info);
 if (info) {
   // Error
 }
+```
 
+Alternatively, you can retrieve the pointer to the file's content.
+
+```C
+#include "ceb.h"
+
+// ...
+
+int64_t size;
+void* data;
+uint64_t info;
+
+ceb_access("file_name.example", &data, &size, &info);
+
+if (info || !size) {
+  // Error
+}
 ```
 
 ## License

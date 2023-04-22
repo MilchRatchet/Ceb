@@ -254,6 +254,13 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("}\\\n", 1, 3, output);
   fwrite("}\n", 1, 2, output);
 
+  fwrite("#define _CEB_ACCESS(__size__, __data__) {\\\n", 1, 43, output);
+  fwrite("*ptr = (void*) __data__;\\\n", 1, 26, output);
+  fwrite("*lmem = __size__;\\\n", 1, 19, output);
+  fwrite("*info = 0;\\\n", 1, 12, output);
+  fwrite("return;\\\n", 1, 9, output);
+  fwrite("}\n", 1, 2, output);
+
   fwrite(
     "void ceb_load(const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD* mem, int64_t RESTRICT_KEYWORD* lmem, uint64_t "
     "RESTRICT_KEYWORD* info) {\n",
@@ -278,6 +285,33 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   }
 
   fwrite("if (*lmem == -1) { *lmem = 0; }\\\n", 1, 33, output);
+  fwrite("*info = 0;\\\n", 1, 12, output);
+  fwrite("}\n", 1, 2, output);
+
+  fwrite(
+    "void ceb_access(const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD** ptr, int64_t RESTRICT_KEYWORD* lmem, uint64_t "
+    "RESTRICT_KEYWORD* info) {\n",
+    1, 147, output);
+  fwrite("if (!name) { *info = 1; return; };\n", 1, 35, output);
+  fwrite("if (!ptr) { *info = 1; return; };\n", 1, 34, output);
+  fwrite("if (!lmem) { *info = 1; return; };\n", 1, 35, output);
+  fwrite("if (!info) { *info = 1; return; };\n", 1, 35, output);
+  fwrite("const uint64_t hash = _ceb_hash_fnv1a(name);\n", 1, 45, output);
+  for (uint32_t i = 0; i < gen->count; i++) {
+    char* buffer = malloc(4096);
+
+    if (!buffer) {
+      return CEB_RESULT_MEMORY;
+    }
+
+    const size_t buf_len = sprintf(
+      buffer, "if (hash == %" PRIu64 "ULL) _CEB_ACCESS(size_%" PRIu64 ", data_%" PRIu64 ");\n", datas[i].hash, datas[i].hash,
+      datas[i].hash);
+    fwrite(buffer, 1, buf_len, output);
+
+    free(buffer);
+  }
+  fwrite("*lmem = 0;\\\n", 1, 12, output);
   fwrite("*info = 0;\\\n", 1, 12, output);
   fwrite("}\n", 1, 2, output);
 
