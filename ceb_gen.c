@@ -176,7 +176,7 @@ static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
   for (int j = 0; j < 8; j++) {
     const uint8_t w = (j < last_iter) ? data8_i[j] : 0;
 
-    v = (v << 8) | w;
+    v = (v >> 8) | (((uint64_t) w) << 56);
   }
 
   buffer_offset += sprintf(buffer + buffer_offset, "0x%" PRIx64 "};\n", v);
@@ -223,7 +223,7 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("#include <stdint.h>\n", 1, 20, output);
   fwrite("#include <string.h>\n", 1, 20, output);
 
-  fwrite("#if defined(__STDFC__) && __STDC_VERSION__ >= 199901\n", 1, 53, output);
+  fwrite("#if defined(__STDC__) && __STDC_VERSION__ >= 199901\n", 1, 52, output);
   fwrite("#define RESTRICT_KEYWORD restrict\n", 1, 34, output);
   fwrite("#else\n", 1, 6, output);
   fwrite("#define RESTRICT_KEYWORD\n", 1, 25, output);

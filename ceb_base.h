@@ -1,6 +1,12 @@
 #ifndef CEB_BASE_H
 #define CEB_BASE_H
 
+/*
+ * This file is only for internal use in Ceb. Use ceb.h to access the file loader function.
+ */
+
+#ifdef CEB_BUILD
+
 #include <stdint.h>
 
 struct CebData {
@@ -29,5 +35,7 @@ enum CebResult {
   }
 
 uint64_t ceb_hash_fnv1a(const char* str);
+
+#endif /* CEB_BUILD */
 
 #endif /* CEB_BASE_H */

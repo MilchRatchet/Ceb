@@ -6,6 +6,26 @@ This project is in early development and not yet fully functioning.
 
 ## Usage
 
+```CMAKE
+cmake_minimum_required(VERSION 3.25)
+
+project(ExampleProject LANGUAGES C)
+
+# ...
+
+add_subdirectory(Ceb)
+include_directories(${CEB_INCLUDE_DIR})
+include(ceb_embed_files)
+
+set(EMBED_FILE_NAME "example_output")
+ceb_embed_files(PROJECT ExampleProject OUTPUT ${EMBED_FILE_NAME} INPUT ${example_input1} ${example_input2})
+
+# ...
+
+add_executable(ExampleExecutable ${EXECUTABLE_SOURCE_FILES} ${CEB_OUTPUT_FILE_${EMBED_FILE_NAME}})
+add_library(ExampleLibrary ${LIBRARY_SOURCE_FILES} ${CEB_OUTPUT_FILE_${EMBED_FILE_NAME}})
+```
+
 ```C
 
 #include "ceb.h"
