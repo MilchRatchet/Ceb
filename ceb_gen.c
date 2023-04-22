@@ -176,7 +176,11 @@ static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
   for (int j = 0; j < 8; j++) {
     const uint8_t w = (j < last_iter) ? data8_i[j] : 0;
 
+#if CEB_BIG_ENDIAN
+    v = (v << 8) | w;
+#else
     v = (v >> 8) | (((uint64_t) w) << 56);
+#endif /* CEB_BIG_ENDIAN*/
   }
 
   buffer_offset += sprintf(buffer + buffer_offset, "0x%" PRIx64 "};\n", v);
