@@ -140,6 +140,39 @@ static CebResult _ceb_gen_create_cebdata(CebData* data, const char* file) {
   return CEB_RESULT_OK;
 }
 
+#if CEB_BIG_ENDIAN
+static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
+  const size_t num_numbers = data->size;
+  char* buffer             = malloc(num_numbers * 4 + 4096);
+
+  if (!buffer) {
+    return CEB_RESULT_MEMORY;
+  }
+
+  const size_t len_size_line = sprintf(buffer, "static int64_t size_%" PRIu64 " = %" PRId64 ";\n", data->hash, data->size);
+  fwrite(buffer, 1, len_size_line, file);
+
+  const uint8_t* data8_i = (const uint8_t*) data->data;
+
+  size_t buffer_offset = 0;
+
+  buffer_offset += sprintf(buffer, "static uint8_t data_%" PRIu64 "[] = {", data->hash);
+
+  for (size_t j = 0; j < num_numbers; j++) {
+    const uint8_t v = data8_i[j];
+
+    buffer_offset += sprintf(buffer + buffer_offset, "%" PRIu8 ",", v);
+  }
+
+  buffer_offset += sprintf(buffer + buffer_offset, "};\n");
+
+  fwrite(buffer, 1, buffer_offset, file);
+
+  free(buffer);
+
+  return CEB_RESULT_OK;
+}
+#else
 static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
   const size_t num_numbers = (data->size + 7) / 8;
   char* buffer             = malloc(num_numbers * 19 + 4096);
@@ -176,11 +209,7 @@ static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
   for (int j = 0; j < 8; j++) {
     const uint8_t w = (j < last_iter) ? data8_i[j] : 0;
 
-#if CEB_BIG_ENDIAN
-    v = (v << 8) | w;
-#else
     v = (v >> 8) | (((uint64_t) w) << 56);
-#endif /* CEB_BIG_ENDIAN*/
   }
 
   buffer_offset += sprintf(buffer + buffer_offset, "0x%" PRIx64 "};\n", v);
@@ -191,6 +220,7 @@ static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
 
   return CEB_RESULT_OK;
 }
+#endif
 
 CebResult ceb_gen_execute(const CebGenerator* gen) {
   CebData* datas = (CebData*) calloc(1, sizeof(CebData) * gen->count);

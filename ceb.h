@@ -6,7 +6,7 @@
 
 #ifndef CEB_BUILD
 
-#if defined(__STDFC__) && __STDC_VERSION__ >= 199901
+#if defined(__STDC__) && __STDC_VERSION__ >= 199901
 #define RESTRICT_KEYWORD restrict
 #else
 #define RESTRICT_KEYWORD
