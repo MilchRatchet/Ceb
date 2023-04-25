@@ -78,6 +78,7 @@ static CebResult read_file(CebData* data, const char* path) {
   FILE* file = fopen(path, "rb");
 
   if (!file) {
+    printf("Failed to open file: %s\n", path);
     return CEB_RESULT_FILEIO;
   }
 
@@ -108,7 +109,7 @@ static CebResult read_file(CebData* data, const char* path) {
 
   data->data[data->size] = '\0';
 
-  printf("Read file of size: %" PRId64 "\n", data->size);
+  printf("Embedded file: %s (%" PRId64 " bytes)\n", data->name, data->size);
 
   return CEB_RESULT_OK;
 }
