@@ -182,14 +182,14 @@ static CebResult _ceb_gen_write_data(FILE* file, const CebData* data) {
     return CEB_RESULT_MEMORY;
   }
 
-  const size_t len_size_line = sprintf(buffer, "static int64_t size_%" PRIu64 " = %" PRId64 ";\n", data->hash, data->size);
+  const size_t len_size_line = sprintf(buffer, "const static int64_t size_%" PRIu64 " = %" PRId64 ";\n", data->hash, data->size);
   fwrite(buffer, 1, len_size_line, file);
 
   const uint64_t* data64_i = (const uint64_t*) data->data;
 
   size_t buffer_offset = 0;
 
-  buffer_offset += sprintf(buffer, "static uint64_t data_%" PRIu64 "[] = {", data->hash);
+  buffer_offset += sprintf(buffer, "const static uint64_t data_%" PRIu64 "[] = {", data->hash);
 
   for (size_t j = 0; j < num_numbers - 1; j++) {
     const uint64_t v = data64_i[j];
