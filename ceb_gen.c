@@ -294,8 +294,8 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("}\n", 1, 2, output);
 
   fwrite(
-    "void ceb_load(const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD* mem, int64_t RESTRICT_KEYWORD* lmem, uint64_t "
-    "RESTRICT_KEYWORD* info) {\n",
+    "void ceb_load(const char* RESTRICT_KEYWORD name, void* RESTRICT_KEYWORD mem, int64_t* RESTRICT_KEYWORD lmem, uint64_t*"
+    " RESTRICT_KEYWORD info) {\n",
     1, 144, output);
   fwrite("if (!name) { *info = 1; return; };\n", 1, 35, output);
   fwrite("if (!lmem) { *info = 1; return; };\n", 1, 35, output);
@@ -321,8 +321,8 @@ CebResult ceb_gen_execute(const CebGenerator* gen) {
   fwrite("}\n", 1, 2, output);
 
   fwrite(
-    "void ceb_access(const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD** ptr, int64_t RESTRICT_KEYWORD* lmem, uint64_t "
-    "RESTRICT_KEYWORD* info) {\n",
+    "void ceb_access(const char* RESTRICT_KEYWORD name, void** RESTRICT_KEYWORD ptr, int64_t* RESTRICT_KEYWORD lmem, uint64_t*"
+    " RESTRICT_KEYWORD info) {\n",
     1, 147, output);
   fwrite("if (!name) { *info = 1; return; };\n", 1, 35, output);
   fwrite("if (!ptr) { *info = 1; return; };\n", 1, 34, output);

@@ -48,7 +48,7 @@ extern "C" {
  *
  */
 void ceb_load(
-  const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD* mem, int64_t RESTRICT_KEYWORD* lmem, uint64_t RESTRICT_KEYWORD* info);
+  const char* RESTRICT_KEYWORD name, void* RESTRICT_KEYWORD mem, int64_t* RESTRICT_KEYWORD lmem, uint64_t* RESTRICT_KEYWORD info);
 
 /**
  * This function provides access to the embedded files memory directly.
@@ -76,7 +76,7 @@ void ceb_load(
  *
  */
 void ceb_access(
-  const char RESTRICT_KEYWORD* name, void RESTRICT_KEYWORD** ptr, int64_t RESTRICT_KEYWORD* lmem, uint64_t RESTRICT_KEYWORD* info);
+  const char* RESTRICT_KEYWORD name, void** RESTRICT_KEYWORD ptr, int64_t* RESTRICT_KEYWORD lmem, uint64_t* RESTRICT_KEYWORD info);
 
 #ifdef __cplusplus
 }
