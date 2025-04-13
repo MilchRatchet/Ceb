@@ -52,7 +52,7 @@ CebResult ceb_gen_add_file(CebGenerator* gen, const char* file) {
 
   if (gen->allocated == gen->count) {
     gen->allocated = gen->allocated + gen->allocated;
-    gen->files     = realloc(gen->files, gen->allocated);
+    gen->files     = realloc(gen->files, gen->allocated * sizeof(char*));
 
     if (!gen->files) {
       return CEB_RESULT_MEMORY;
